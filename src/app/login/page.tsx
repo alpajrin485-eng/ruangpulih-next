@@ -18,14 +18,20 @@ function LoginForm() {
     setError("");
     setLoading(true);
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email: `${username.trim().toLowerCase()}@ruangpulih.local`,
-      password,
-    });
-    setLoading(false);
-    if (error) {
-      setError("Username atau password salah.");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: `${username.trim().toLowerCase()}@ruangpulih.local`,
+        password,
+      });
+      if (error) {
+        setError("Username atau password salah.");
+        return;
+      }
+    } catch {
+      setError("Tidak dapat menghubungi server. Periksa koneksi lalu coba lagi.");
       return;
+    } finally {
+      setLoading(false);
     }
     const next = params.get("next");
     router.push(next && next.startsWith("/") && !next.startsWith("//") ? next : "/");

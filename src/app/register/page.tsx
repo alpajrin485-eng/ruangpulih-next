@@ -27,7 +27,12 @@ export default function Register() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-      const j = await r.json();
+      let j: { error?: string } = {};
+      try {
+        j = await r.json();
+      } catch {
+        j = { error: "Server tidak merespons dengan benar. Coba lagi." };
+      }
       if (!r.ok) {
         setError(j.error ?? "Pendaftaran gagal.");
         return;
@@ -43,6 +48,8 @@ export default function Register() {
       }
       router.push("/");
       router.refresh();
+    } catch {
+      setError("Tidak dapat menghubungi server. Periksa koneksi lalu coba lagi.");
     } finally {
       setLoading(false);
     }
