@@ -37,17 +37,17 @@ export default async function Footer() {
 
   return (
     <>
-      <div className="h-2 bg-gradient-to-r from-green-500 via-green-600 to-green-500" />
-      <footer className="bg-green-950 text-green-50">
+      <div className="h-2 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500" />
+      <footer className="bg-blue-950 text-blue-50">
         <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 md:grid-cols-2">
           <div>
             <div className="flex items-center gap-4">
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-300 text-4xl font-bold text-green-900 ring-4 ring-amber-200">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-300 text-4xl font-bold text-blue-900 ring-4 ring-amber-200">
                 Ψ
               </span>
-              <div className="border-l-2 border-green-700 pl-4">
+              <div className="border-l-2 border-blue-700 pl-4">
                 <p className="font-extrabold leading-tight">RUANGPULIH</p>
-                <p className="text-sm text-green-200">Belajar Sehat, Tumbuh Hebat</p>
+                <p className="text-sm text-blue-200">Belajar Sehat, Tumbuh Hebat</p>
               </div>
             </div>
             <div className="mt-6 grid grid-cols-2 gap-4 text-sm font-semibold">
@@ -66,19 +66,19 @@ export default async function Footer() {
           <div>
             <div className="flex gap-3">
               {SOSMED.map((s) => (
-                <a key={s.nama} href={s.href} aria-label={s.nama} title={s.nama} className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-green-900 hover:bg-amber-200">
+                <a key={s.nama} href={s.href} aria-label={s.nama} title={s.nama} className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-blue-900 hover:bg-amber-200">
                   <Ikon d={s.d} />
                 </a>
               ))}
             </div>
             <p className="mt-5 font-extrabold">RuangPulih</p>
-            <p className="text-sm text-green-200">{nilai.footer_alamat}</p>
+            <p className="text-sm text-blue-200">{nilai.footer_alamat}</p>
             <ul className="mt-3 space-y-1.5 text-sm">
               <li><span className="font-semibold">Whatsapp</span><span className="mx-2">:</span>{nilai.footer_wa}</li>
               <li><span className="font-semibold">Website</span><span className="mx-2">:</span>{nilai.footer_web}</li>
               <li><span className="font-semibold">Email</span><span className="mx-2">:</span>{nilai.footer_email}</li>
             </ul>
-            <p className="mt-5 text-sm text-green-200">
+            <p className="mt-5 text-sm text-blue-200">
               Copyright © {tahun} {nilai.footer_copyright} Disclaimer
             </p>
           </div>

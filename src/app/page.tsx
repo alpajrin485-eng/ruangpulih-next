@@ -36,8 +36,6 @@ export default async function Beranda() {
       riwayat = (h as typeof riwayat) ?? [];
     }
   }
-  const nama = profile?.nama || profile?.username || "";
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-violet-50 via-blue-50 to-white">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
@@ -67,15 +65,19 @@ export default async function Beranda() {
         )}
       </header>
 
-      <section className="mx-auto max-w-6xl px-6 pb-10 pt-4 text-center">
-        <div className="rounded-3xl bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 px-8 py-14 text-white shadow-xl ring-2 ring-white/60">
-          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-white text-5xl font-bold text-violet-700 shadow ring-4 ring-violet-200">
+      <section className="mx-auto max-w-6xl px-6 pb-10 pt-4">
+        <Carousel />
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-10 text-center">
+        <div className="rounded-3xl border-2 border-violet-100 bg-white px-8 py-12 shadow-sm">
+          <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-violet-600 text-5xl font-bold text-white shadow">
             Ψ
           </div>
-          <h1 className="text-4xl font-extrabold md:text-5xl">
-            {profile ? `Dashboard ${nama}` : "Belajar Sehat, Tumbuh Hebat"}
+          <h1 className="text-4xl font-extrabold text-violet-950 md:text-5xl">
+            Belajar Sehat, Tumbuh Hebat
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-violet-100">
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
             {profile?.role === "user"
               ? "Progres belajar Anda hari ini."
               : profile
@@ -86,13 +88,13 @@ export default async function Beranda() {
             <div className="mt-8 flex justify-center gap-4">
               <Link
                 href="/register"
-                className="rounded-xl bg-white px-6 py-3 font-bold text-violet-700 shadow hover:bg-violet-50"
+                className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-6 py-3 font-bold text-white shadow hover:opacity-95"
               >
                 Mulai Sekarang
               </Link>
               <Link
                 href="/tentang"
-                className="rounded-xl px-6 py-3 font-bold text-white ring-2 ring-white/70 hover:bg-white/10"
+                className="rounded-xl px-6 py-3 font-bold text-violet-700 ring-2 ring-violet-200 hover:bg-violet-50"
               >
                 Tentang Kami
               </Link>
@@ -100,23 +102,19 @@ export default async function Beranda() {
           )}
           {profile?.role === "admin" && (
             <div className="mt-8">
-              <Link href="/admin" className="rounded-xl bg-white px-6 py-3 font-bold text-violet-700 shadow hover:bg-violet-50">
+              <Link href="/admin" className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-6 py-3 font-bold text-white shadow hover:opacity-95">
                 Buka Dashboard Admin
               </Link>
             </div>
           )}
           {profile?.role === "konselor" && (
             <div className="mt-8">
-              <Link href="/konselor" className="rounded-xl bg-white px-6 py-3 font-bold text-violet-700 shadow hover:bg-violet-50">
+              <Link href="/konselor" className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-6 py-3 font-bold text-white shadow hover:opacity-95">
                 Buka Area Konselor
               </Link>
             </div>
           )}
         </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-6 pb-10">
-        <Carousel />
       </section>
 
       {profile?.role === "user" && (
