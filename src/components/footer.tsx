@@ -34,6 +34,12 @@ export default async function Footer() {
     if (r.value) nilai[r.key] = r.value;
   });
   const tahun = new Date().getFullYear();
+  const copyright = (() => {
+    const v = (nilai.footer_copyright || "").replace(/^@+/, "").trim() || "RuangPulih. All Rights Reserved.";
+    const depan = /copyright/i.test(v) ? "" : `Copyright © ${tahun} `;
+    const belakang = /disclaimer/i.test(v) ? "" : " Disclaimer";
+    return `${depan}${v}${belakang}`;
+  })();
 
   return (
     <>
@@ -79,7 +85,7 @@ export default async function Footer() {
               <li><span className="font-semibold">Email</span><span className="mx-2">:</span>{nilai.footer_email}</li>
             </ul>
             <p className="mt-5 text-sm text-blue-200">
-              Copyright © {tahun} {nilai.footer_copyright} Disclaimer
+              {copyright}
             </p>
           </div>
         </div>
