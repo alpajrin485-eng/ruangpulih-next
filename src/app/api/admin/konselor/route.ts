@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { wajibKuat } from "@/lib/password";
 
 async function wajibAdmin() {
   const supabase = await createClient();
@@ -16,8 +17,10 @@ export async function POST(req: Request) {
   const b = await req.json();
   const username = String(b.username ?? "").trim().toLowerCase();
   const password = String(b.password ?? "");
-  if (!/^[a-z0-9_]{3,20}$/.test(username) || password.length < 4)
-    return NextResponse.json({ error: "Username/password tidak valid." }, { status: 400 });
+  if (!/^[a-z0-9_]{3,20}$/.test(username))
+    return NextResponse.json({ error: "Username tidak valid." }, { status: 400 });
+  const cek = wajibKuat(password, username);
+  if (cek) return NextResponse.json({ error: cek }, { status: 400 });
   const admin = createAdminClient();
   const { data: taken } = await admin.from("profiles").select("id").eq("username", username).limit(1);
   if (taken && taken.length > 0) return NextResponse.json({ error: "Username dipakai." }, { status: 409 });

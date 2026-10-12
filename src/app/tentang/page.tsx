@@ -1,6 +1,9 @@
+import Footer from "@/components/footer";
+
 export default function Tentang() {
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <>
+      <main className="mx-auto max-w-4xl px-6 py-10">
       <div className="rounded-3xl bg-gradient-to-br from-violet-600 to-blue-600 px-8 py-12 text-center text-white shadow">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white text-4xl font-bold text-violet-700">
           Ψ
@@ -31,6 +34,8 @@ export default function Tentang() {
         </section>
       </div>
       <p className="mt-6 text-center text-sm text-slate-400">RuangPulih — Belajar sehat, tumbuh hebat.</p>
-    </main>
+      </main>
+      <Footer />
+    </>
   );
 }

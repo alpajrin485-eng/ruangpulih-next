@@ -170,7 +170,7 @@ export default function Konsultasi() {
               </div>
               {(s.status === "diterima" || s.status === "selesai") && (
                 <Link
-                  href={`/app/konsultasi/${s.id}`}
+                  href={`/konsultasi/${s.id}`}
                   className="rounded-xl px-4 py-2 text-sm font-bold text-violet-700 ring-2 ring-violet-200 hover:bg-violet-50"
                 >
                   Buka Chat

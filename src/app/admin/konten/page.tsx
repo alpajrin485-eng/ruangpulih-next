@@ -21,7 +21,7 @@ export default function Konten() {
     <div className="space-y-4">
       <h1 className="text-2xl font-extrabold text-violet-950">Kelola Konten</h1>
       <div className="flex flex-wrap gap-2">
-        {["Kuis", "Edukasi", "Video", "Carousel", "Nada", "Materi Belajar"].map((t) => (
+        {["Kuis", "Edukasi", "Video", "Carousel", "Nada", "Materi Belajar", "Footer"].map((t) => (
           <button
             key={t}
             onClick={() => { setTab(t); setMsg(""); }}
@@ -38,6 +38,7 @@ export default function Konten() {
       {tab === "Carousel" && <TabCarousel supabase={supabase} kabari={setMsg} />}
       {tab === "Nada" && <TabNada supabase={supabase} kabari={setMsg} />}
       {tab === "Materi Belajar" && <TabMateriBelajar supabase={supabase} kabari={setMsg} />}
+      {tab === "Footer" && <TabFooter supabase={supabase} kabari={setMsg} />}
     </div>
   );
 }
@@ -459,6 +460,54 @@ function TabMateriBelajar({ supabase, kabari }: { supabase: SB; kabari: (s: stri
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+// ---------------- FOOTER ----------------
+const FOOTER_KEYS: Array<[string, string]> = [
+  ["footer_wa", "Whatsapp"],
+  ["footer_web", "Website"],
+  ["footer_email", "Email"],
+  ["footer_alamat", "Alamat"],
+  ["footer_copyright", "Teks copyright"],
+];
+
+function TabFooter({ supabase, kabari }: { supabase: SB; kabari: (s: string) => void }) {
+  const [f, setF] = useState<Record<string, string>>({});
+
+  async function muat() {
+    const { data } = await supabase.from("settings").select("key,value").like("key", "footer\\_%");
+    const m: Record<string, string> = {};
+    ((data as Array<{ key: string; value: string | null }>) ?? []).forEach((r) => {
+      m[r.key] = r.value ?? "";
+    });
+    setF(m);
+  }
+  useEffect(() => {
+    const t = setTimeout(() => muat(), 0);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function simpan() {
+    for (const [k] of FOOTER_KEYS) {
+      await supabase.from("settings").upsert({ key: k, value: (f[k] ?? "").trim() }, { onConflict: "key" });
+    }
+    kabari("Kontak footer tersimpan.");
+    muat();
+  }
+
+  return (
+    <div className="space-y-3 rounded-2xl border bg-white p-5 shadow-sm">
+      <h2 className="font-bold">Kontak Footer</h2>
+      <p className="text-sm text-slate-500">Tampil di footer hijau bagian bawah web. Kosongkan untuk memakai bawaan.</p>
+      {FOOTER_KEYS.map(([k, label]) => (
+        <label key={k} className="block text-sm font-semibold">{label}
+          <input value={f[k] ?? ""} onChange={(e) => setF({ ...f, [k]: e.target.value })} className={input + " mt-1"} />
+        </label>
+      ))}
+      <button onClick={simpan} className={btn}>Simpan Footer</button>
     </div>
   );
 }

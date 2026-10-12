@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED = ["/app", "/konselor", "/admin"];
+const PROTECTED = ["/kuis", "/refleksi", "/teman-belajar", "/konsultasi", "/profil", "/konselor", "/admin"];
 
 export async function middleware(request: NextRequest) {
   let res = NextResponse.next({ request });
@@ -50,7 +50,7 @@ export async function middleware(request: NextRequest) {
     .single();
 
   const role = (profile?.role ?? "user") as "user" | "konselor" | "admin";
-  const home = role === "admin" ? "/admin" : role === "konselor" ? "/konselor" : "/app";
+  const home = role === "admin" ? "/admin" : role === "konselor" ? "/konselor" : "/";
 
   if (profile?.status === "dibanned") {
     const url = request.nextUrl.clone();
@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
     return redirect;
   }
 
-  if (path === "/" || isAuthPage) {
+  if (isAuthPage) {
     const next = request.nextUrl.searchParams.get("next");
     const url = request.nextUrl.clone();
     url.pathname = next && next.startsWith("/") && !next.startsWith("//") ? next : home;
@@ -71,10 +71,21 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  if (path.startsWith("/app")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
   if (
     (path.startsWith("/admin") && role !== "admin") ||
     (path.startsWith("/konselor") && role !== "konselor") ||
-    (path.startsWith("/app") && role !== "user")
+    ((path.startsWith("/kuis") ||
+      path.startsWith("/refleksi") ||
+      path.startsWith("/teman-belajar") ||
+      path.startsWith("/konsultasi") ||
+      path.startsWith("/profil")) &&
+      role !== "user")
   ) {
     const url = request.nextUrl.clone();
     url.pathname = home;

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { wajibKuat } from "@/lib/password";
 
 const USERNAME_RE = /^[a-z0-9_]{3,20}$/;
 
@@ -25,8 +26,12 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    if (password.length < 4) {
-      return NextResponse.json({ error: "Password minimal 4 karakter." }, { status: 400 });
+    if (password.length < 8) {
+      return NextResponse.json({ error: "Password minimal 8 karakter." }, { status: 400 });
+    }
+    const cek = wajibKuat(password, username);
+    if (cek) {
+      return NextResponse.json({ error: cek }, { status: 400 });
     }
 
     const admin = createAdminClient();

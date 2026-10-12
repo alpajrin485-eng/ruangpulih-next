@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { nilaiPassword, wajibKuat } from "@/lib/password";
+import PasswordMeter from "@/components/password-meter";
 
 export default function Register() {
   const router = useRouter();
@@ -18,6 +20,11 @@ export default function Register() {
     setError("");
     if (password !== password2) {
       setError("Password tidak sama.");
+      return;
+    }
+    const cek = wajibKuat(password, username);
+    if (cek) {
+      setError(cek);
       return;
     }
     setLoading(true);
@@ -80,14 +87,15 @@ export default function Register() {
           className="mb-4 w-full rounded-xl border px-4 py-2.5 outline-none focus:ring-2 focus:ring-violet-400"
           autoComplete="username"
         />
-        <label className="mb-1 block text-sm font-semibold">Password (min 4 karakter)</label>
+        <label className="mb-1 block text-sm font-semibold">Password (min 8 karakter, harus Kuat)</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mb-4 w-full rounded-xl border px-4 py-2.5 outline-none focus:ring-2 focus:ring-violet-400"
+          className="w-full rounded-xl border px-4 py-2.5 outline-none focus:ring-2 focus:ring-violet-400"
           autoComplete="new-password"
         />
+        <PasswordMeter value={password} username={username} />
         <label className="mb-1 block text-sm font-semibold">Ulangi password</label>
         <input
           type="password"
@@ -97,7 +105,7 @@ export default function Register() {
           autoComplete="new-password"
         />
         <button
-          disabled={loading}
+          disabled={loading || nilaiPassword(password, username).level !== "kuat"}
           className="w-full rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 py-3 font-bold text-white shadow disabled:opacity-60"
         >
           {loading ? "Memproses..." : "Buat Akun"}

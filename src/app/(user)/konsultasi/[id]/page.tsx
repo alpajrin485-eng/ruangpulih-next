@@ -94,7 +94,7 @@ export default function ChatUser({ params }: { params: Promise<{ id: string }> }
   if (sesi === null)
     return (
       <div className="rounded-2xl border bg-white p-6 text-slate-500 shadow-sm">
-        Sesi tidak ditemukan. <Link href="/app/konsultasi" className="font-bold text-violet-700">Kembali</Link>
+        Sesi tidak ditemukan. <Link href="/konsultasi" className="font-bold text-violet-700">Kembali</Link>
       </div>
     );
 
@@ -104,7 +104,7 @@ export default function ChatUser({ params }: { params: Promise<{ id: string }> }
         <h1 className="text-xl font-extrabold text-violet-950">
           Chat — {sesi.counselors?.profiles?.nama ?? "Konselor"} ({sesi.status})
         </h1>
-        <Link href="/app/konsultasi" className="text-sm font-bold text-violet-700">← Sesi saya</Link>
+        <Link href="/konsultasi" className="text-sm font-bold text-violet-700">← Sesi saya</Link>
       </div>
 
       <div className="h-96 space-y-2 overflow-y-auto rounded-2xl border bg-white p-4 shadow-sm">

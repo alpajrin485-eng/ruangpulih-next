@@ -12,5 +12,5 @@ export function createAdminClient() {
 export type Role = "user" | "konselor" | "admin";
 
 export function homeFor(role: Role): string {
-  return role === "admin" ? "/admin" : role === "konselor" ? "/konselor" : "/app";
+  return role === "admin" ? "/admin" : role === "konselor" ? "/konselor" : "/";
 }

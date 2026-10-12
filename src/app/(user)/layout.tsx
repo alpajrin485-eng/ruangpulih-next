@@ -2,15 +2,15 @@ import Link from "next/link";
 import LogoutButton from "@/components/logout-button";
 
 const MENU = [
-  ["/app", "Dashboard"],
-  ["/app/kuis", "Kuis"],
-  ["/app/refleksi", "Refleksi"],
-  ["/app/teman-belajar", "Teman Belajar"],
-  ["/app/konsultasi", "Konsultasi"],
-  ["/app/profil", "Profil"],
+  ["/", "Dashboard"],
+  ["/kuis", "Kuis"],
+  ["/refleksi", "Refleksi"],
+  ["/teman-belajar", "Teman Belajar"],
+  ["/konsultasi", "Konsultasi"],
+  ["/profil", "Profil"],
 ] as const;
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function UserLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen bg-violet-50/60">
       <aside className="hidden w-60 shrink-0 flex-col bg-gradient-to-b from-violet-800 via-indigo-700 to-blue-700 p-5 text-white md:flex">

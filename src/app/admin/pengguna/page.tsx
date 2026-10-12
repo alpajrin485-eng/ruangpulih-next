@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { nilaiPassword, wajibKuat } from "@/lib/password";
+import PasswordMeter from "@/components/password-meter";
 
 type User = { id: string; username: string; nama: string | null; role: string; status: string };
 
@@ -24,6 +26,11 @@ export default function Pengguna() {
   }, []);
 
   async function tambahKonselor() {
+    const cek = wajibKuat(f.password, f.username);
+    if (cek) {
+      setMsg(cek);
+      return;
+    }
     const r = await fetch("/api/admin/konselor", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -38,8 +45,13 @@ export default function Pengguna() {
   }
 
   async function kirimReset() {
-    if (!resetId || resetPw.length < 4) {
-      setMsg("Pilih user dan isi password baru (min 4).");
+    if (!resetId) {
+      setMsg("Pilih user terlebih dahulu.");
+      return;
+    }
+    const cek = wajibKuat(resetPw);
+    if (cek) {
+      setMsg(cek);
       return;
     }
     const r = await fetch("/api/admin/reset-password", {
@@ -69,10 +81,11 @@ export default function Pengguna() {
         <div className="mt-2 grid gap-2 md:grid-cols-3">
           <input value={f.username} onChange={(e) => setF({ ...f, username: e.target.value })} placeholder="Username" className={input} />
           <input value={f.nama} onChange={(e) => setF({ ...f, nama: e.target.value })} placeholder="Nama" className={input} />
-          <input type="password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} placeholder="Password" className={input} />
+          <input type="password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} placeholder="Password (min 8, harus Kuat)" className={input} />
+          <div className="md:col-span-3"><PasswordMeter value={f.password} username={f.username} /></div>
           <input value={f.spesialisasi} onChange={(e) => setF({ ...f, spesialisasi: e.target.value })} placeholder="Spesialisasi" className={input} />
           <input value={f.bio} onChange={(e) => setF({ ...f, bio: e.target.value })} placeholder="Bio singkat" className={input} />
-          <button onClick={tambahKonselor} className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-4 py-2 text-sm font-bold text-white">Buat Akun</button>
+          <button onClick={tambahKonselor} disabled={f.password !== "" && nilaiPassword(f.password, f.username).level !== "kuat"} className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-60">Buat Akun</button>
         </div>
       </section>
 
@@ -85,9 +98,10 @@ export default function Pengguna() {
               <option key={u.id} value={u.id}>{u.username} ({u.role})</option>
             ))}
           </select>
-          <input type="password" value={resetPw} onChange={(e) => setResetPw(e.target.value)} placeholder="Password baru" className={input + " md:w-56"} />
-          <button onClick={kirimReset} className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-4 py-2 text-sm font-bold text-white">Reset</button>
+          <input type="password" value={resetPw} onChange={(e) => setResetPw(e.target.value)} placeholder="Password baru (min 8, Kuat)" className={input + " md:w-56"} />
+          <button onClick={kirimReset} disabled={resetPw !== "" && nilaiPassword(resetPw).level !== "kuat"} className="rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-60">Reset</button>
         </div>
+        {resetPw && <div className="mt-2 md:w-96"><PasswordMeter value={resetPw} /></div>}
       </section>
 
       <section className="overflow-x-auto rounded-2xl border bg-white shadow-sm">
