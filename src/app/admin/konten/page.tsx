@@ -471,6 +471,11 @@ const FOOTER_KEYS: Array<[string, string]> = [
   ["footer_email", "Email"],
   ["footer_alamat", "Alamat"],
   ["footer_copyright", "Teks copyright"],
+  ["footer_yt", "YouTube (tautan)"],
+  ["footer_fb", "Facebook (tautan)"],
+  ["footer_ig", "Instagram (tautan)"],
+  ["footer_tiktok", "TikTok (tautan)"],
+  ["footer_x", "X (tautan)"],
 ];
 
 function TabFooter({ supabase, kabari }: { supabase: SB; kabari: (s: string) => void }) {

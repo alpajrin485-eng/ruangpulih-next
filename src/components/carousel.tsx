@@ -34,23 +34,26 @@ export default function Carousel() {
       onMouseEnter={() => setJeda(true)}
       onMouseLeave={() => setJeda(false)}
     >
-      <div className="relative aspect-[21/9] w-full bg-violet-100">
+      <div
+        className="flex transition-transform duration-700 ease-in-out"
+        style={{ transform: `translateX(-${idx * 100}%)` }}
+      >
         {fotos.map((f, i) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            key={i}
-            src={f.foto_url}
-            alt={f.caption ?? `Foto ${i + 1}`}
-            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-              i === idx ? "opacity-100" : "opacity-0"
-            }`}
-          />
+          <div key={i} className="relative aspect-[21/9] w-full shrink-0 bg-violet-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={f.foto_url}
+              alt={f.caption ?? `Foto ${i + 1}`}
+              draggable={false}
+              className="h-full w-full select-none object-cover"
+            />
+            {f.caption && (
+              <p className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-6 pb-8 pt-10 text-center font-semibold text-white">
+                {f.caption}
+              </p>
+            )}
+          </div>
         ))}
-        {fotos[idx]?.caption && (
-          <p className="absolute bottom-10 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-6 pb-2 pt-8 text-center font-semibold text-white">
-            {fotos[idx].caption}
-          </p>
-        )}
       </div>
       {fotos.length > 1 && (
         <>
