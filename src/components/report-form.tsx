@@ -29,6 +29,18 @@ export default function ReportForm({
     const supabase = createClient();
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) return;
+    let q = supabase
+      .from("reports")
+      .select("id")
+      .eq("pelapor_id", user.user.id)
+      .eq("terlapor_id", terlaporId)
+      .in("status", ["menunggu", "diproses"]);
+    q = sessionId ? q.eq("session_id", sessionId) : q.is("session_id", null);
+    const { data: dobel } = await q.limit(1);
+    if (dobel && dobel.length > 0) {
+      setMsg("Laporan untuk kasus ini sudah ada dan sedang diproses admin.");
+      return;
+    }
     const { error } = await supabase.from("reports").insert({
       pelapor_id: user.user.id,
       terlapor_id: terlaporId,

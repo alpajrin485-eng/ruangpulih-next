@@ -6,6 +6,14 @@ import { createClient } from "@/lib/supabase/client";
 type Soal = { question: string; options: string[]; answer: number; explanation: string };
 type Video = { judul: string; tipe: string; kind: string; src: string };
 
+function youtubeId(url: string): string | null {
+  const m =
+    url.match(/[?&]v=([A-Za-z0-9_-]{6,})/) ||
+    url.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/) ||
+    url.match(/\/(?:shorts|live|embed)\/([A-Za-z0-9_-]{6,})/);
+  return m ? m[1] : null;
+}
+
 function KartuVideo({ v, label }: { v?: Video; label: string }) {
   if (!v)
     return (
@@ -17,12 +25,21 @@ function KartuVideo({ v, label }: { v?: Video; label: string }) {
     <div>
       <p className="mb-2 font-semibold">{v.judul}</p>
       {v.kind === "youtube" ? (
-        <iframe
-          src={v.src.replace("youtu.be/", "www.youtube.com/embed/").replace("watch?v=", "embed/")}
-          title={v.judul}
-          allowFullScreen
-          className="aspect-video w-full rounded-xl ring-1 ring-slate-200"
-        />
+        (() => {
+          const id = youtubeId(v.src);
+          return id ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${id}`}
+              title={v.judul}
+              allowFullScreen
+              className="aspect-video w-full rounded-xl ring-1 ring-slate-200"
+            />
+          ) : (
+            <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
+              Tautan YouTube tidak dikenali. Gunakan tombol di bawah untuk menonton.
+            </p>
+          );
+        })()
       ) : (
         <video src={v.src} controls className="w-full rounded-xl ring-1 ring-slate-200" />
       )}

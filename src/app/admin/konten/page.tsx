@@ -44,6 +44,14 @@ export default function Konten() {
 
 type SB = ReturnType<typeof createClient>;
 
+async function hapusBerkas(supabase: SB, bucket: string, publicUrl: string | null) {
+  if (!publicUrl) return;
+  const i = publicUrl.indexOf(`/${bucket}/`);
+  if (i < 0) return;
+  const path = publicUrl.slice(i + bucket.length + 2);
+  if (path) await supabase.storage.from(bucket).remove([path]);
+}
+
 // ---------------- KUIS ----------------
 function TabKuis({ supabase, kabari }: { supabase: SB; kabari: (s: string) => void }) {
   type Q = { id: string; question: string; options: string[]; answer: number; explanation: string; kategori: string; aktif: boolean };
@@ -267,7 +275,7 @@ function TabVideo({ supabase, kabari }: { supabase: SB; kabari: (s: string) => v
         {list.map((v) => (
           <li key={v.id} className="flex items-center justify-between gap-2 rounded-xl border px-4 py-2 text-sm">
             <span><b>[{v.tipe}]</b> {v.judul} <span className="text-slate-400">({v.kind}{v.aktif ? ", aktif" : ""})</span></span>
-            <button onClick={async () => { await supabase.from("videos").delete().eq("id", v.id); muat(); }} className="font-bold text-red-600">Hapus</button>
+            <button onClick={async () => { if (v.kind === "file") await hapusBerkas(supabase, "video", v.src); await supabase.from("videos").delete().eq("id", v.id); muat(); }} className="font-bold text-red-600">Hapus</button>
           </li>
         ))}
       </ul>
@@ -329,7 +337,7 @@ function TabCarousel({ supabase, kabari }: { supabase: SB; kabari: (s: string) =
             <span className="truncate">{c.caption || c.foto_url.slice(0, 60)} {c.aktif ? "" : "(nonaktif)"}</span>
             <span className="flex gap-2">
               <button onClick={async () => { await supabase.from("carousel").update({ aktif: !c.aktif }).eq("id", c.id); muat(); }} className="font-bold text-violet-700">{c.aktif ? "Nonaktifkan" : "Aktifkan"}</button>
-              <button onClick={async () => { await supabase.from("carousel").delete().eq("id", c.id); muat(); }} className="font-bold text-red-600">Hapus</button>
+              <button onClick={async () => { await hapusBerkas(supabase, "carousel", c.foto_url); await supabase.from("carousel").delete().eq("id", c.id); muat(); }} className="font-bold text-red-600">Hapus</button>
             </span>
           </li>
         ))}
@@ -368,7 +376,9 @@ function TabNada({ supabase, kabari }: { supabase: SB; kabari: (s: string) => vo
       return;
     }
     const { data } = supabase.storage.from("media").getPublicUrl(nama);
+    const lama = saatIni;
     await supabase.from("settings").upsert({ key: "alarm_url", value: data.publicUrl }, { onConflict: "key" });
+    if (lama && lama !== data.publicUrl) await hapusBerkas(supabase, "media", lama);
     kabari("Nada alarm diperbarui.");
     setFile(null);
     setKerja(false);
@@ -376,7 +386,9 @@ function TabNada({ supabase, kabari }: { supabase: SB; kabari: (s: string) => vo
   }
 
   async function hapus() {
+    const lama = saatIni;
     await supabase.from("settings").upsert({ key: "alarm_url", value: "" }, { onConflict: "key" });
+    await hapusBerkas(supabase, "media", lama);
     kabari("Nada dihapus. Timer memakai bunyi bawaan browser.");
     muat();
   }
