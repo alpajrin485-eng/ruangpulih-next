@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import ReportForm from "@/components/report-form";
 
 type Konselor = {
   id: string;
@@ -21,8 +20,6 @@ type Sesi = {
   created_at: string;
   counselors: { profiles: { nama: string | null; username: string } | null } | null;
 };
-
-const KATEGORI_USER = ["Chat tidak pantas", "Pelecehan", "Spam", "Lainnya"];
 
 export default function Konsultasi() {
   const [konselor, setKonselor] = useState<Konselor[]>([]);
@@ -111,13 +108,6 @@ export default function Konsultasi() {
                 </div>
               </div>
               {k.bio && <p className="mt-2 text-sm text-slate-600">{k.bio}</p>}
-              <div className="mt-3">
-                <ReportForm
-                  terlaporId={k.user_id}
-                  arah="user_ke_konselor"
-                  kategoriList={KATEGORI_USER}
-                />
-              </div>
             </div>
           ))}
         </div>

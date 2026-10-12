@@ -63,7 +63,7 @@ export default function TemanBelajar() {
       let r = parseInt(map["default_rest"] || "5", 10) || 5;
       let dariKonselor = false;
       if (user.user) {
-        const { data: us } = await supabase.from("user_settings").select("focus_minutes,rest_minutes").eq("user_id", user.user.id).single();
+        const { data: us } = await supabase.from("user_settings").select("focus_minutes,rest_minutes,updated_at").eq("user_id", user.user.id).single();
         if (us) {
           f = us.focus_minutes;
           r = us.rest_minutes;
@@ -71,7 +71,7 @@ export default function TemanBelajar() {
         }
         const { data: fu } = await supabase
           .from("followups")
-          .select("id,materi_custom,plan,focus_minutes,rest_minutes,selesai_oleh_user,sessions!inner(user_id,status,counselors(profiles(nama))))")
+          .select("id,materi_custom,plan,focus_minutes,rest_minutes,selesai_oleh_user,created_at,sessions!inner(user_id,status,counselors(profiles(nama))))")
           .eq("sessions.user_id", user.user.id)
           .eq("sessions.status", "selesai")
           .eq("sudah_diisi", true)
@@ -80,7 +80,7 @@ export default function TemanBelajar() {
         const row = (fu as unknown as Array<{
           id: string; materi_custom: string | null; plan: string | null;
           focus_minutes: number | null; rest_minutes: number | null;
-          selesai_oleh_user: boolean;
+          selesai_oleh_user: boolean; created_at: string;
           sessions: { counselors: { profiles: { nama: string | null } } | null };
         }>)?.[0];
         if (row) {
@@ -93,7 +93,10 @@ export default function TemanBelajar() {
             selesai: row.selesai_oleh_user,
             konselor: row.sessions.counselors?.profiles?.nama ?? "Konselor",
           });
-          if (!us) {
+          // Aturan terbaru-menang: preset konselor dipakai bila lebih baru
+          // dari perubahan manual terakhir (atau belum pernah diatur manual).
+          const manualTs = (us as { updated_at?: string } | null)?.updated_at ?? "";
+          if (!us || row.created_at > manualTs) {
             f = row.focus_minutes ?? f;
             r = row.rest_minutes ?? r;
             dariKonselor = true;
@@ -114,7 +117,7 @@ export default function TemanBelajar() {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) return;
     await supabase.from("user_settings").upsert(
-      { user_id: user.user.id, focus_minutes: nf, rest_minutes: nr },
+      { user_id: user.user.id, focus_minutes: nf, rest_minutes: nr, updated_at: new Date().toISOString() },
       { onConflict: "user_id" }
     );
   }
@@ -208,11 +211,14 @@ export default function TemanBelajar() {
         {diubahManual && !preset && (
           <p className="mx-auto mb-3 w-fit rounded-full bg-white/20 px-4 py-1 text-xs">
             Diatur manual
-            {blokB && (
-              <button onClick={kembaliPreset} className="ml-2 underline">
-                Kembalikan ke anjuran konselor
-              </button>
-            )}
+          </p>
+        )}
+        {blokB && (fokus !== blokB.fokus || istirahat !== blokB.istirahat) && (
+          <p className="mx-auto mb-3 w-fit rounded-full bg-white/20 px-4 py-1 text-xs">
+            Anjuran konselor: {blokB.fokus}/{blokB.istirahat} mnt
+            <button onClick={kembaliPreset} className="ml-2 font-bold underline">
+              Kembalikan ke anjuran konselor
+            </button>
           </p>
         )}
         <div className="mx-auto mt-2 grid max-w-md grid-cols-2 gap-3">

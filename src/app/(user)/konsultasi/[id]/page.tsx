@@ -21,6 +21,7 @@ export default function ChatUser({ params }: { params: Promise<{ id: string }> }
   const [pesan, setPesan] = useState<Pesan[]>([]);
   const [teks, setTeks] = useState("");
   const [uid, setUid] = useState("");
+  const [namaSaya, setNamaSaya] = useState("");
   const [bintang, setBintang] = useState(5);
   const [ulasan, setUlasan] = useState("");
   const [sudahRating, setSudahRating] = useState(false);
@@ -31,6 +32,8 @@ export default function ChatUser({ params }: { params: Promise<{ id: string }> }
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) return;
     setUid(user.user.id);
+    const { data: prof } = await supabase.from("profiles").select("nama,username").eq("id", user.user.id).single();
+    setNamaSaya((prof as { nama: string | null; username: string } | null)?.nama ?? (prof as { username: string } | null)?.username ?? "Anda");
     const { data: s } = await supabase
       .from("sessions")
       .select("id,status,user_id,counselors(user_id,profiles(nama))")
@@ -102,7 +105,7 @@ export default function ChatUser({ params }: { params: Promise<{ id: string }> }
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-extrabold text-violet-950">
-          Chat — {sesi.counselors?.profiles?.nama ?? "Konselor"} ({sesi.status})
+          Konselor {sesi.counselors?.profiles?.nama ?? "Konselor"} ↔ {namaSaya || "Anda"} ({sesi.status})
         </h1>
         <Link href="/konsultasi" className="text-sm font-bold text-violet-700">← Sesi saya</Link>
       </div>
@@ -111,6 +114,9 @@ export default function ChatUser({ params }: { params: Promise<{ id: string }> }
         {pesan.length === 0 && <p className="text-sm text-slate-400">Belum ada pesan. Mulai percakapan...</p>}
         {pesan.map((p) => (
           <div key={p.id} className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${p.sender_id === uid ? "ml-auto bg-violet-600 text-white" : "bg-slate-100 text-slate-700"}`}>
+            <p className={`mb-0.5 text-[11px] font-bold ${p.sender_id === uid ? "text-violet-200" : "text-violet-600"}`}>
+              {p.sender_id === uid ? namaSaya || "Anda" : sesi.counselors?.profiles?.nama ?? "Konselor"}
+            </p>
             {p.isi}
           </div>
         ))}

@@ -22,8 +22,10 @@ export default function KonselorHome() {
   const [pesan, setPesan] = useState<Pesan[]>([]);
   const [teks, setTeks] = useState("");
   const [uid, setUid] = useState("");
+  const [namaSaya, setNamaSaya] = useState("");
   const [fu, setFu] = useState({ materi: "", plan: "", fokus: "25", istirahat: "5" });
   const [ratingSaya, setRatingSaya] = useState<{ avg: number; n: number } | null>(null);
+  const [msgFu, setMsgFu] = useState("");
   const bawah = useRef<HTMLDivElement>(null);
 
   async function muat(pilihId?: string) {
@@ -31,6 +33,8 @@ export default function KonselorHome() {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) return;
     setUid(user.user.id);
+    const { data: prof } = await supabase.from("profiles").select("nama,username").eq("id", user.user.id).single();
+    setNamaSaya((prof as { nama: string | null; username: string } | null)?.nama ?? (prof as { username: string } | null)?.username ?? "Anda");
     const { data: k } = await supabase.from("counselors").select("id").eq("user_id", user.user.id).single();
     if (!k) return;
     const { data: s } = await supabase
@@ -100,7 +104,7 @@ export default function KonselorHome() {
   async function simpanFollowup() {
     if (!aktifId) return;
     const supabase = createClient();
-    await supabase.from("followups").upsert(
+    const { error } = await supabase.from("followups").upsert(
       {
         session_id: aktifId,
         materi_custom: fu.materi.trim() || null,
@@ -111,6 +115,7 @@ export default function KonselorHome() {
       },
       { onConflict: "session_id" }
     );
+    setMsgFu(error ? "Gagal menyimpan: " + error.message : "Tersimpan. User akan melihatnya di menu Teman Belajar (sesi selesai).");
     muat(aktifId);
   }
 
@@ -136,7 +141,7 @@ export default function KonselorHome() {
                 <p className="text-sm text-slate-500">{s.keluhan}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {(s.status === "diterima" || s.status === "selesai") && (
-                    <button onClick={() => { setAktifId(s.id); muat(s.id); }} className="rounded-lg px-3 py-1.5 text-sm font-bold text-blue-700 ring-1 ring-blue-200">
+                    <button onClick={() => { setAktifId(s.id); setMsgFu(""); muat(s.id); }} className="rounded-lg px-3 py-1.5 text-sm font-bold text-blue-700 ring-1 ring-blue-200">
                       Buka
                     </button>
                   )}
@@ -158,7 +163,7 @@ export default function KonselorHome() {
         </section>
 
         <section className="space-y-4 rounded-2xl border bg-white p-5 shadow-sm">
-          <h2 className="font-bold text-blue-950">Chat {aktif ? `— ${aktif.profiles?.nama}` : ""}</h2>
+          <h2 className="font-bold text-blue-950">Chat {aktif ? `— ${aktif.profiles?.nama ?? aktif.profiles?.username} ↔ ${namaSaya || "Anda"}` : ""}</h2>
           {!aktifId ? (
             <p className="text-sm text-slate-400">Pilih sesi untuk mulai chat.</p>
           ) : (
@@ -166,6 +171,9 @@ export default function KonselorHome() {
               <div className="h-72 space-y-2 overflow-y-auto rounded-xl bg-slate-50 p-3 ring-1 ring-slate-100">
                 {pesan.map((p) => (
                   <div key={p.id} className={`max-w-[85%] rounded-2xl px-4 py-2 text-sm ${p.sender_id === uid ? "ml-auto bg-blue-600 text-white" : "bg-white text-slate-700 ring-1 ring-slate-200"}`}>
+                    <p className={`mb-0.5 text-[11px] font-bold ${p.sender_id === uid ? "text-blue-200" : "text-blue-600"}`}>
+                      {p.sender_id === uid ? namaSaya || "Anda" : aktif?.profiles?.nama ?? aktif?.profiles?.username ?? "User"}
+                    </p>
                     {p.isi}
                   </div>
                 ))}
@@ -208,6 +216,7 @@ export default function KonselorHome() {
                 <button onClick={simpanFollowup} className="mt-3 rounded-xl bg-gradient-to-r from-violet-600 to-blue-600 px-5 py-2.5 font-bold text-white">
                   Simpan untuk User
                 </button>
+                {msgFu && <p className="mt-2 text-sm text-violet-900">{msgFu}</p>}
               </div>
             </>
           )}
